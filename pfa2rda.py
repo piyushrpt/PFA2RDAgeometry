@@ -221,6 +221,7 @@ class isce3Ops:
         if hae is None:
             hae = self._meta.GeoData.SCP.LLH.HAE
 
+        elp = Ellipsoid()
         dem = DEMInterpolator(hae)
         rgaz = (rc - self.grid_shift[None, :]) * self.grid_mult[None, :]
         rrdot = np.dot(self.Amat, rgaz.T) + self.rrdot_offset[:, None]
@@ -228,21 +229,16 @@ class isce3Ops:
         side = LookSide(1) if self._meta.SCPCOA.SideOfTrack.startswith("L")\
             else LookSide(-1)
 
-        pts_llh = []
+        pts_ecf = []
         for pt in rrdot.T:
             r = pt[0]
             wvl = 1.0
             dop = -pt[1] * 2 / wvl
             llh = rdr2geo(0., r, self.orbit, side, dop, wvl, dem)
-            pts_llh.append(llh)
+            pts_ecf.append(elp.lon_lat_to_xyz(llh))
 
-        pts_llh = np.vstack(pts_llh)
-        pts_llh[:, :2] = np.degrees(pts_llh[:, :2])
+        return np.vstack(pts_ecf)
 
-        ecf = lla2ecef.transform(pts_llh[:, 0], pts_llh[:, 1], pts_llh[:, 2])
-
-        # Will use to ISCE transform rrdot to location on ground
-        return np.vstack(ecf).T.copy()
 
     def check_geo2rdr(self, xyz):
         """
@@ -411,8 +407,8 @@ if __name__ == "__main__":
     print("\n")
 
     # isce3 round trip error
-    resid_isce = isce_obj.geo2rowcol(geos_isce)[0] - grid
+    resid_isce = isce_obj.geo2rowcol(geos_isce) - grid
     print("isce3 round trip")
     print("Max abs error in pixels")
-    print(np.abs(resid_spy).max(axis=0))
+    print(np.abs(resid_isce).max(axis=0))
     print("\n")
