@@ -234,7 +234,8 @@ class isce3Ops:
             r = pt[0]
             wvl = 1.0
             dop = -pt[1] * 2 / wvl
-            llh = rdr2geo(0., r, self.orbit, side, dop, wvl, dem)
+            llh = rdr2geo(0., r, self.orbit, side, dop, wvl, dem,
+                          threshold=1.0e-8, maxiter=50)
             pts_ecf.append(elp.lon_lat_to_xyz(llh))
 
         return np.vstack(pts_ecf)
