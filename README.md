@@ -1,6 +1,6 @@
 # PFA2RDAgeometry
 
-Demonstration of using a Range-Doppler geometry engine (isce3) to precisely simulate Polar Format geometry for Staring Spotlight data (sarpy).
+Demonstration of using a Range-Doppler geometry engine (isce3) to precisely simulate Polar Format geometry for Staring Spotlight data (sarpy). A short technical note related to this work can be found [here](https://arxiv.org/abs/2503.07889).
 
 ## Requirements
 

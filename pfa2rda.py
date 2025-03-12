@@ -377,16 +377,15 @@ if __name__ == "__main__":
     hts = np.random.randn(xx.size) * 300 + img.sicd_meta.GeoData.SCP.LLH.HAE
 
     # Test forward transform
-    resid_ecf = np.zeros((xx.size, 3))
     geos_spy = np.zeros((xx.size, 3))
     geos_isce = np.zeros((xx.size, 3))
     for ind, (pt, ht) in enumerate(zip(grid, hts)):
         isoln = isce_obj.rowcol2geo(pt, hae=ht)
         ssoln = spy_obj.rowcol2geo(pt, hae=ht)
-        resid_ecf[ind, :] = isoln - ssoln
         geos_spy[ind, :] = ssoln
         geos_isce[ind, :] = isoln
 
+    resid_ecf = geos_isce - geos_spy
     print("Forward mapping over grid")
     print("Max abs error in meters")
     print(np.abs(resid_ecf).max(axis=0))
